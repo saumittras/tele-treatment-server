@@ -3,11 +3,11 @@ import { UserStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import config from "../../../config";
 import { jwtHelper } from "../../helper/jwtHealper";
-import { prsima } from "../../shared/prisma";
+import { prisma } from "../../shared/prisma";
 import { ILoginCredintial } from "./auth.interface";
 
 const login = async (credintial: ILoginCredintial) => {
-  const user = await prsima.user.findFirstOrThrow({
+  const user = await prisma.user.findFirstOrThrow({
     where: {
       email: credintial.email,
       status: UserStatus.ACTIVE,
@@ -30,6 +30,7 @@ const login = async (credintial: ILoginCredintial) => {
   const accessToken = jwtHelper.generateToken(
     {
       userId: user.id,
+      email: user.email,
       role: user.role,
     },
     config.jwt.secret,
@@ -38,6 +39,7 @@ const login = async (credintial: ILoginCredintial) => {
   const refressToken = jwtHelper.generateToken(
     {
       userId: user.id,
+      email: user.email,
       role: user.role,
     },
     config.jwt.secret,

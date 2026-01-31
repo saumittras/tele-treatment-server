@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { Request } from "express";
 import { fileUploader } from "../../helper/fileUploader";
 import { IOptions, paginationHelpers } from "../../helper/paginationHelpers";
-import { prsima } from "../../shared/prisma";
+import { prisma } from "../../shared/prisma";
 import { userSearchableFields } from "./user.constant";
 
 const createPatient = async (req: Request) => {
@@ -15,7 +15,7 @@ const createPatient = async (req: Request) => {
 
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-  const result = await prsima.$transaction(async (tnx) => {
+  const result = await prisma.$transaction(async (tnx) => {
     const userResult = await tnx.user.create({
       data: {
         email: req.body.patient.email,
@@ -41,7 +41,7 @@ const createAdmin = async (req: Request) => {
 
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-  const result = await prsima.$transaction(async (tnx) => {
+  const result = await prisma.$transaction(async (tnx) => {
     const userResult = await tnx.user.create({
       data: {
         email: req.body.admin.email,
@@ -67,7 +67,7 @@ const createDoctor = async (req: Request) => {
 
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-  const result = await prsima.$transaction(async (tnx) => {
+  const result = await prisma.$transaction(async (tnx) => {
     const userResult = await tnx.user.create({
       data: {
         email: req.body.doctor.email,
@@ -114,7 +114,7 @@ const getAllFromDB = async (params: any, options: IOptions) => {
         }
       : {};
 
-  const result = await prsima.user.findMany({
+  const result = await prisma.user.findMany({
     skip,
     take: limit,
 
@@ -124,7 +124,7 @@ const getAllFromDB = async (params: any, options: IOptions) => {
     },
   });
 
-  const total = await prsima.user.count({
+  const total = await prisma.user.count({
     where: whereConditions,
   });
 
