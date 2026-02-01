@@ -1,7 +1,9 @@
+import httpStatus from "http-status";
 // import bcrypt from "bcryptjs";
 import { UserStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import config from "../../../config";
+import ApiError from "../../errors/ApiError";
 import { jwtHelper } from "../../helper/jwtHealper";
 import { prisma } from "../../shared/prisma";
 import { ILoginCredintial } from "./auth.interface";
@@ -15,7 +17,7 @@ const login = async (credintial: ILoginCredintial) => {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new ApiError(httpStatus.UNAUTHORIZED, "User not found");
   }
 
   const isPasswordCorrect = await bcrypt.compare(
@@ -24,7 +26,7 @@ const login = async (credintial: ILoginCredintial) => {
   );
 
   if (!isPasswordCorrect) {
-    throw new Error("Invalid password");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid password");
   }
 
   const accessToken = jwtHelper.generateToken(
