@@ -39,7 +39,7 @@ model Doctor {
     address             String
     registrationNumber  String
     experience          Int      @default(0)
-    gender              Gender   @default(MALE)
+    gender              Gender
     appointmentFee      Int
     qualification       String
     currentWorkingPlace String
@@ -50,7 +50,7 @@ model Doctor {
 
     user User @relation(fields: [email], references: [email])
 
-    doctorSchedules   DoctorSchedule[]
+    doctorSchedules   DoctorSchedules[]
     doctorSpecialties DoctorSpecialties[]
 
     @@map("doctors")

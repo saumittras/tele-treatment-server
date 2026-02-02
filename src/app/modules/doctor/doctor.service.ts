@@ -52,18 +52,67 @@ const updateIntoDB = async (
   id: string,
   payload: Partial<IDoctorUpdateInput>,
 ) => {
-  const isDataExist = await prisma.doctor.findUniqueOrThrow({ where: { id } });
-  const { specialties, ...doctorData } = payload;
-
-  if (specialties && specialties.length > 0) {
-  }
-
-  const updatedData = await prisma.doctor.update({
-    where: { id: isDataExist.id },
-    data: doctorData,
+  const doctorInfo = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      id,
+    },
   });
 
-  return updatedData;
+  const { specialties, ...doctorData } = payload;
+
+  console.log(specialties, doctorData, id);
+
+  return await prisma.$transaction(async (tnx) => {
+    if (specialties && specialties.length > 0) {
+      const deleteSpecialtyIds = specialties.filter(
+        (specialty) => specialty.isDeleted == true,
+      );
+
+      console.log("deleteSpecialtyIds", deleteSpecialtyIds);
+
+      for (const specialty of deleteSpecialtyIds) {
+        await tnx.doctorSpecialties.deleteMany({
+          where: {
+            doctorId: id,
+            specialitiesId: specialty.specialtyId,
+          },
+        });
+      }
+
+      const createSpecialtyIds = specialties.filter(
+        (specialty) => specialty.isDeleted == false,
+      );
+
+      console.log("createSpecialtyIds", createSpecialtyIds);
+
+      for (const specialty of createSpecialtyIds) {
+        await tnx.doctorSpecialties.create({
+          data: {
+            doctorId: id,
+            specialitiesId: specialty.specialtyId,
+          },
+        });
+      }
+    }
+
+    const updatedData = await tnx.doctor.update({
+      where: {
+        id: doctorInfo.id,
+      },
+      data: doctorData,
+      include: {
+        doctorSpecialties: {
+          include: {
+            specialities: true,
+          },
+        },
+      },
+
+      //  doctor - doctorSpecailties - specialities
+    });
+
+    return updatedData;
+  });
 };
 
 export const DoctorService = { getAllFromDB, updateIntoDB };

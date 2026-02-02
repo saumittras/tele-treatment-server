@@ -1,15 +1,15 @@
 model Schedule {
-    id              String           @id @default(uuid())
+    id              String            @id @default(uuid())
     startDateTime   DateTime
     endDateTime     DateTime
-    createdAt       DateTime         @default(now())
-    updatedAt       DateTime         @updatedAt
-    doctorSchedules DoctorSchedule[]
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
+    doctorSchedules DoctorSchedules[]
 
     @@map("schedules")
 }
 
-model DoctorSchedule {
+model DoctorSchedules {
     doctorId   String
     doctor     Doctor   @relation(fields: [doctorId], references: [id])
     scheduleId String
@@ -19,5 +19,5 @@ model DoctorSchedule {
     updatedAt  DateTime @updatedAt
 
     @@id([doctorId, scheduleId])
-    @@map("doctor_Schedules")
+    @@map("doctor_schedules")
 }
